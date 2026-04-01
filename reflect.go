@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ── Tag format ───────────────────────────────────────────────────────────────
+// -- Tag format ---------------------------------------------------------------
 //
 //   type Record struct {
 //       TicketNo    string    `qlvm:"ticket"`           // String (inferred)
@@ -20,8 +20,8 @@ import (
 //   }
 //
 // Tag syntax:  `qlvm:"<name>[,<type>]"`
-//   name  — query field name; "-" excludes the field
-//   type  — optional explicit FieldType: "string", "number", "bool", "date"
+//   name  - query field name; "-" excludes the field
+//   type  - optional explicit FieldType: "string", "number", "bool", "date"
 //           If omitted, the type is inferred from the Go type (see inferType).
 
 const tagKey = "qlvm"
@@ -35,7 +35,7 @@ type fieldEntry struct {
 	index     []int // path for reflect.Value.FieldByIndex
 }
 
-// typeCache maps reflect.Type → []fieldEntry.
+// typeCache maps reflect.Type -> []fieldEntry.
 // Populated on first call to schemaFields or resolverFields; never mutated after.
 var typeCache sync.Map
 
@@ -67,7 +67,7 @@ func walkFields(t reflect.Type, indexPrefix []int) []fieldEntry {
 
 		idx := append(append([]int(nil), indexPrefix...), i)
 
-		// Anonymous (embedded) struct — recurse and flatten
+		// Anonymous (embedded) struct - recurse and flatten
 		ft := sf.Type
 		if ft.Kind() == reflect.Ptr {
 			ft = ft.Elem()
@@ -115,7 +115,7 @@ func inferType(t reflect.Type) FieldType {
 		t = t.Elem()
 	}
 
-	// time.Time → Date
+	// time.Time -> Date
 	if t == reflect.TypeOf(time.Time{}) {
 		return Date
 	}
@@ -146,7 +146,7 @@ func parseTypeHint(hint string) FieldType {
 	}
 }
 
-// ── SchemaFromStruct ─────────────────────────────────────────────────────────
+// -- SchemaFromStruct ---------------------------------------------------------
 
 // SchemaFromStruct builds a *Schema by reflecting over the fields of T.
 // T must be a struct (or pointer to struct).
@@ -172,12 +172,12 @@ func SchemaFromStruct[T any]() *Schema {
 	return s
 }
 
-// ── ResolverOf ───────────────────────────────────────────────────────────────
+// -- ResolverOf ---------------------------------------------------------------
 
 // ResolverOf returns a Resolver that reads fields from v using the
 // pre-computed (and cached) reflection metadata for T.
 //
-// The returned Resolver is a plain function value — safe to call from
+// The returned Resolver is a plain function value - safe to call from
 // multiple goroutines, cheap to create (one reflect.ValueOf call).
 //
 // For fields with custom extraction logic, wrap the returned Resolver:
@@ -194,7 +194,7 @@ func ResolverOf[T any](v T) Resolver {
 	t := reflect.TypeOf(zero)
 	entries := schemaFields(t)
 
-	// Build a name→entry index for O(1) lookup inside the closure.
+	// Build a name->entry index for O(1) lookup inside the closure.
 	// This map is shared across all Resolvers for the same type T
 	// (it is part of the cached metadata, allocated once).
 	idx := nameIndex(t, entries)
@@ -214,7 +214,7 @@ func ResolverOf[T any](v T) Resolver {
 	}
 }
 
-// nameIndex returns a name→fieldEntry map for the given type.
+// nameIndex returns a name->fieldEntry map for the given type.
 // The map itself is also cached inside typeCache under a sentinel key.
 func nameIndex(t reflect.Type, entries []fieldEntry) map[string]fieldEntry {
 	type indexKey struct{ t reflect.Type }
@@ -233,7 +233,7 @@ func nameIndex(t reflect.Type, entries []fieldEntry) map[string]fieldEntry {
 // extractValue converts a reflect.Value to the concrete Go value the VM
 // expects for each FieldType.
 func extractValue(fv reflect.Value, ft FieldType) any {
-	// Handle pointer fields — dereference or return zero.
+	// Handle pointer fields - dereference or return zero.
 	if fv.Kind() == reflect.Ptr {
 		if fv.IsNil() {
 			return zeroFor(ft)
@@ -257,7 +257,7 @@ func extractValue(fv reflect.Value, ft FieldType) any {
 		return float64(0)
 
 	case Date:
-		// time.Time fields — return "YYYY-MM-DD" string for uniform comparison.
+		// time.Time fields - return "YYYY-MM-DD" string for uniform comparison.
 		if fv.Type() == reflect.TypeOf(time.Time{}) {
 			t := fv.Interface().(time.Time)
 			if t.IsZero() {

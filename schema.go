@@ -1,7 +1,7 @@
 // Package qlvm is a generic, embeddable query-language virtual machine.
 //
 // It compiles a human-readable filter string into a stack-based Program
-// and runs it against any data type through a [Resolver] function —
+// and runs it against any data type through a [Resolver] function -
 // no reflection, no interface assertions in hot paths, no coupling to
 // your types.
 //
@@ -13,8 +13,8 @@
 //	        Field("hours",       qlvm.Number).
 //	        Field("date",        qlvm.Date).
 //	        Field("has_ticket",  qlvm.Bool).
-//	        Prefix('.', "ticket", qlvm.Contains).  // .bug  → ticket CONTAINS 'bug'
-//	        Suffix('?', qlvm.Exists()),             // hours? → hours > 0
+//	        Prefix('.', "ticket", qlvm.Contains).  // .bug  -> ticket CONTAINS 'bug'
+//	        Suffix('?', qlvm.Exists()),             // hours? -> hours > 0
 //	)
 //
 //	match, err := engine.Match("hours >= 4 AND .bug", func(field string) (any, bool) {
@@ -35,7 +35,7 @@ const (
 	String FieldType = iota // case-insensitive string
 	Number                  // float64
 	Bool                    // bool
-	Date                    // "YYYY-MM-DD" — ordered via time.Parse
+	Date                    // "YYYY-MM-DD" - ordered via time.Parse
 )
 
 // PrefixRule defines how a prefix symbol expands into an expression.
@@ -63,10 +63,10 @@ type SuffixRule struct {
 }
 
 // Exists returns a SuffixRule that means "has a value":
-//   - String → field != ""
-//   - Number → field > 0
-//   - Bool   → field == true
-//   - Date   → field != ""
+//   - String -> field != ""
+//   - Number -> field > 0
+//   - Bool   -> field == true
+//   - Date   -> field != ""
 func Exists() SuffixRule {
 	return SuffixRule{ByType: map[FieldType]SuffixExpansion{
 		String: {Op: OP_NEQ, StrVal: ""},
@@ -111,9 +111,9 @@ func (s *Schema) Field(name string, typ FieldType) *Schema {
 
 // Prefix registers a symbol rune that can appear before a bare word.
 //
-//	s.Prefix('.', "ticket", qlvm.Contains)  // .bug  → ticket CONTAINS 'bug'
-//	s.Prefix('#', "id",     qlvm.EQ)        // #42   → id = '42'
-//	s.Prefix('@', "user",   qlvm.EQ)        // @alice → user = 'alice'
+//	s.Prefix('.', "ticket", qlvm.Contains)  // .bug  -> ticket CONTAINS 'bug'
+//	s.Prefix('#', "id",     qlvm.EQ)        // #42   -> id = '42'
+//	s.Prefix('@', "user",   qlvm.EQ)        // @alice -> user = 'alice'
 func (s *Schema) Prefix(sym rune, field string, op Op) *Schema {
 	s.prefix[sym] = PrefixRule{Field: field, Op: op}
 	return s
@@ -122,7 +122,7 @@ func (s *Schema) Prefix(sym rune, field string, op Op) *Schema {
 // Suffix registers a symbol rune that can appear directly after a
 // field name (no space).
 //
-//	s.Suffix('?', qlvm.Exists())   // ticket? → ticket != ''
+//	s.Suffix('?', qlvm.Exists())   // ticket? -> ticket != ''
 func (s *Schema) Suffix(sym rune, rule SuffixRule) *Schema {
 	s.suffix[sym] = rule
 	return s

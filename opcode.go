@@ -29,9 +29,9 @@ const (
 	OP_REGEX    // regexp.MatchString(b, a)
 
 	// -- Logic --------------------------------------------------------------
-	OP_AND // pop b, pop a → a && b
-	OP_OR  // pop b, pop a → a || b
-	OP_NOT // pop a        → !a
+	OP_AND // pop b, pop a -> a && b
+	OP_OR  // pop b, pop a -> a || b
+	OP_NOT // pop a        -> !a
 )
 
 // Contains is an alias used in schema registration for readability.
@@ -55,7 +55,7 @@ type Instruction struct {
 	StrVal    string    // OP_LOAD field name; OP_PUSH_STRING value
 	FloatVal  float64   // OP_PUSH_FLOAT value
 	BoolVal   bool      // OP_PUSH_BOOL value
-	FieldType FieldType // OP_LOAD only — the registered type of the field
+	FieldType FieldType // OP_LOAD only - the registered type of the field
 }
 
 // Program is the output of compilation: a flat, immutable slice of

@@ -29,7 +29,7 @@ func New(schema *Schema) *Engine {
 }
 
 // CompiledQuery is a pre-compiled, reusable query.
-// Compile once, run many times — no re-parsing overhead.
+// Compile once, run many times - no re-parsing overhead.
 type CompiledQuery struct {
 	prog   Program
 	engine *Engine
@@ -102,7 +102,7 @@ func FilterCompiled[T any](cq *CompiledQuery, items []T, resolve func(T) Resolve
 	for _, item := range items {
 		match, err := cq.Match(resolve(item))
 		if err != nil {
-			continue // runtime mismatch — skip rather than halt
+			continue // runtime mismatch - skip rather than halt
 		}
 		if match {
 			result = append(result, item)
@@ -132,7 +132,7 @@ func (s *Schema) Fields() []string {
 	return names
 }
 
-// PrefixSymbols returns a map of registered prefix rune → PrefixRule.
+// PrefixSymbols returns a map of registered prefix rune -> PrefixRule.
 func (s *Schema) PrefixSymbols() map[rune]PrefixRule {
 	out := make(map[rune]PrefixRule, len(s.prefix))
 	for k, v := range s.prefix {
@@ -141,7 +141,7 @@ func (s *Schema) PrefixSymbols() map[rune]PrefixRule {
 	return out
 }
 
-// SuffixSymbols returns a map of registered suffix rune → SuffixRule.
+// SuffixSymbols returns a map of registered suffix rune -> SuffixRule.
 func (s *Schema) SuffixSymbols() map[rune]SuffixRule {
 	out := make(map[rune]SuffixRule, len(s.suffix))
 	for k, v := range s.suffix {

@@ -10,10 +10,10 @@ package qlvm
 //	or_expr  = and_expr  ( 'OR'  and_expr )*
 //	and_expr = not_expr  ( 'AND' not_expr )*
 //	not_expr = 'NOT' not_expr | atom
-//	atom     = prefix_sym IDENT           — shorthand expansion
-//	         | IDENT suffix_sym            — suffix expansion
-//	         | IDENT op value             — comparison
-//	         | IDENT                      — bare bool field
+//	atom     = prefix_sym IDENT           - shorthand expansion
+//	         | IDENT suffix_sym            - suffix expansion
+//	         | IDENT op value             - comparison
+//	         | IDENT                      - bare bool field
 //	         | '(' expr ')'
 //	op       = '=' | '!=' | '>' | '>=' | '<' | '<=' | '~' | 'contains'
 //	value    = STRING | NUMBER
@@ -31,7 +31,7 @@ type compiler struct {
 	schema *Schema
 }
 
-// compile is the entry point: tokenize → parse → return Program.
+// compile is the entry point: tokenize -> parse -> return Program.
 func compile(query string, schema *Schema) (Program, error) {
 	if strings.TrimSpace(query) == "" {
 		return Program{}, nil
@@ -174,7 +174,7 @@ func (c *compiler) parseAtom() error {
 		// Peek at the next token to determine which form this is.
 		next := c.peekNext()
 
-		// Form: IDENT TOK_SYMBOL  →  suffix expansion  (ticket?)
+		// Form: IDENT TOK_SYMBOL  ->  suffix expansion  (ticket?)
 		if next.Type == TOK_SYMBOL {
 			if _, isSuffix := c.schema.suffix[next.Symbol]; isSuffix {
 				c.consume() // consume ident
@@ -183,11 +183,11 @@ func (c *compiler) parseAtom() error {
 			}
 		}
 
-		// Form: IDENT op value  →  field comparison
+		// Form: IDENT op value  ->  field comparison
 		if isOperatorToken(next) || isKeywordOp(next) {
 			fieldDef, ok := c.schema.field(fieldName)
 			if !ok {
-				return fmt.Errorf("unknown field %q — registered fields: %s",
+				return fmt.Errorf("unknown field %q - registered fields: %s",
 					fieldName, c.fieldList())
 			}
 			c.consume() // consume ident
@@ -210,10 +210,10 @@ func (c *compiler) parseAtom() error {
 			return nil
 		}
 
-		// Form: bare IDENT  →  must be a Bool field
+		// Form: bare IDENT  ->  must be a Bool field
 		fieldDef, ok := c.schema.field(fieldName)
 		if !ok {
-			return fmt.Errorf("unknown field %q — registered fields: %s",
+			return fmt.Errorf("unknown field %q - registered fields: %s",
 				fieldName, c.fieldList())
 		}
 		if fieldDef.typ != Bool {
