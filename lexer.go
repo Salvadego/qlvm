@@ -11,7 +11,7 @@ import (
 type Lexer struct {
 	input      []rune
 	pos        int
-	stashed    *Token       // at most one buffered token (suffix detection)
+	stashed    *Token // at most one buffered token (suffix detection)
 	prefixSyms map[rune]bool
 	suffixSyms map[rune]bool
 }
@@ -117,12 +117,12 @@ func (l *Lexer) readIdent() string {
 			break
 		}
 		if first && (l.prefixSyms[ch] || l.suffixSyms[ch]) {
-					break
+			break
 		}
 		// fix cases like v0.2.0
 		if !unicode.IsLetter(ch) &&
-		   !unicode.IsDigit(ch) &&
-		   ch != '_' && ch != '-' && ch != '.' {
+			!unicode.IsDigit(ch) &&
+			ch != '_' && ch != '-' && ch != '.' {
 			break
 		}
 		first = false
@@ -169,7 +169,10 @@ func (l *Lexer) nextRaw() Token {
 		l.advance()
 		if n, ok := l.peekRune(); ok && n == '=' {
 			l.advance()
-			return Token{Type: TOK_NEQ}
+			return Token{Type: TOK_NEQ} // != takes priority over ! prefix
+		}
+		if l.prefixSyms['!'] {
+			return Token{Type: TOK_SYMBOL, Symbol: '!'}
 		}
 		return Token{Type: TOK_IDENT, Literal: "!"}
 	case '>':
