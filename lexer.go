@@ -106,6 +106,7 @@ func (l *Lexer) readNumber() string {
 
 func (l *Lexer) readIdent() string {
 	var sb strings.Builder
+	first := true
 	for {
 		ch, ok := l.peekRune()
 		if !ok || unicode.IsSpace(ch) {
@@ -115,12 +116,16 @@ func (l *Lexer) readIdent() string {
 			ch == '~' || ch == '(' || ch == ')' || ch == '\'' {
 			break
 		}
-		if l.prefixSyms[ch] || l.suffixSyms[ch] {
+		if first && (l.prefixSyms[ch] || l.suffixSyms[ch]) {
+					break
+		}
+		// fix cases like v0.2.0
+		if !unicode.IsLetter(ch) &&
+		   !unicode.IsDigit(ch) &&
+		   ch != '_' && ch != '-' && ch != '.' {
 			break
 		}
-		if !unicode.IsLetter(ch) && !unicode.IsDigit(ch) && ch != '_' && ch != '-' {
-			break
-		}
+		first = false
 		l.advance()
 		sb.WriteRune(ch)
 	}
@@ -187,8 +192,11 @@ func (l *Lexer) nextRaw() Token {
 		word := l.readIdent()
 		// If a suffix symbol follows immediately, buffer it
 		if next, ok := l.peekRune(); ok && l.suffixSyms[next] {
-			sym, _ := l.advance()
-			l.stashed = &Token{Type: TOK_SYMBOL, Symbol: sym}
+			// Peek one further - if it's alphanumeric, it's part of the value not a suffix
+			if after, ok := l.peekRuneAt(1); !ok || !unicode.IsLetter(after) && !unicode.IsDigit(after) {
+				sym, _ := l.advance()
+				l.stashed = &Token{Type: TOK_SYMBOL, Symbol: sym}
+			}
 		}
 		return Token{Type: TOK_IDENT, Literal: word}
 	}
