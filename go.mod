@@ -1,3 +1,3 @@
 module github.com/Salvadego/qlvm
 
-go 1.25.8
+go 1.23.0
