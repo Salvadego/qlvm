@@ -68,6 +68,23 @@ func (cq *CompiledQuery) Match(resolve Resolver) (bool, error) {
 	return newVM(cq.prog, resolve).run()
 }
 
+// Program returns the compiled instruction stream backing this query.
+// Most callers should use Match/FilterCompiled; this exists for
+// callers that want to translate the query into a different execution
+// engine (e.g. a SQL WHERE clause) while still treating qlvm's own
+// compiler as the single source of truth for what the query string
+// means, rather than re-parsing the original string with a second
+// parser that could silently diverge from qlvm's semantics.
+//
+// The returned Program is the same slice held internally — callers
+// must treat it as read-only. (Program is already a value type of
+// Instruction structs, all of whose fields are plain immutable values,
+// so there's no deeper aliasing risk here beyond "don't mutate the
+// slice contents.")
+func (cq *CompiledQuery) Program() Program {
+	return cq.prog
+}
+
 // Filter is a generic helper that compiles query once and applies it to
 // a slice of items. Items that fail to match or produce a runtime error
 // are excluded from the result.
